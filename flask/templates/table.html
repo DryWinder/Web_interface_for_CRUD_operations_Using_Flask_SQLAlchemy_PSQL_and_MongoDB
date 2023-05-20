@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='/styles.css') }}"/>
+    <title>Title</title>
+</head>
+<body>
+    <form method="POST" action="/">
+    <input type="submit" name="submit_button" value="Show locations">
+    <input type="submit" name="submit_button" value="Show students">
+    <input type="submit" name="submit_button" value="Show EO">
+    <input type="submit" name="submit_button" value="Show Tests">
+</form>
+
+    <table class="table">
+        <tr class="table__header">
+            {% for header in headers %}
+            <th class="table__cell">{{header}}</th>
+            {% endfor %}
+        </tr>
+        {% for row in data %}
+        <tr class="table__row">
+            {% for cell in row %}
+            <td class="table__cell">{{ cell }}</td>
+            {% endfor %}
+            <td>
+                <a href="">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+<form action={{url}} method="POST">
+    {% for header in headers %}
+    <input type="text" name={{header}} >
+    {% endfor %}
+    <input type="submit" value="Add data" >
+
+</form>
+</body>
+</html>

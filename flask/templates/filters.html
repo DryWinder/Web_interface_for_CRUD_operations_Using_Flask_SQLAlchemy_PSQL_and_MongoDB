@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='/styles.css') }}"/>
+    <title>Title</title>
+</head>
+<body>
+<form method="POST" action="/">
+    <input type="submit" name="submit_button" value="Show locations">
+    <input type="submit" name="submit_button" value="Show students">
+    <input type="submit" name="submit_button" value="Show EO">
+    <input type="submit" name="submit_button" value="Show Tests">
+    <input type="submit" name="submit_button" value="Filters">
+</form>
+<p></p>
+<form method="POST" action="{{ url }}">
+    <label for="years">Оберіть рік проведення ЗНО/НМТ: </label>
+    <select name="years" id="year">
+        <optgroup label="Рік">
+            {% for year in years %}
+            <option value={{year}}>{{year}}</option>
+            {% endfor %}
+        </optgroup>
+    </select>
+
+    <label for="regnames">Оберіть область проживання учасника: </label>
+    <select name="regnames" id="year">
+        <optgroup label="Область">
+            {% for regname in regnames %}
+            <option value={{regname}}>{{regname}}</option>
+            {% endfor %}
+        </optgroup>
+    </select>
+
+    <label for="subjects">Оберіть предмет: </label>
+    <select name="subjects" id="subject">
+        <optgroup label="Предмет">
+            {% for subject in subjects %}
+            <option value={{subject}}>{{subject}}</option>
+            {% endfor %}
+        </optgroup>
+    </select>
+
+    <label for="funcs">Функція: </label>
+    <select name="funcs" id="func">
+        <optgroup label="Функція">
+            {% for function in functions %}
+            <option value={{function}}>{{function}}</option>
+            {% endfor %}
+        </optgroup>
+    </select>
+
+    <input type="submit" name="submit_button" value="Застосувати">
+</form>
+
+<table class="table">
+    <tr class="table__header">
+        <th class="table__header"> Оцінка </th>
+    </tr>
+
+    <tr class="table__row">
+        <td class="table__cell">{{ grade }}</td>
+    </tr>
+
+</table>
+</body>
+</html>

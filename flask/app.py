@@ -2,16 +2,6 @@ from flask import Flask, render_template, url_for, redirect, request
 from SQLA_config import *
 app = Flask(__name__)
 
-
-@app.route("/students")
-def students():
-    string = ""
-    for row in fetchRowsFromStudents():
-        string += str(row) + "\n"
-
-    return string
-
-
 engine = create_engine("postgresql+psycopg2://postgres:root1@localhost/student01_DB")
 
 
@@ -41,6 +31,28 @@ def showTables():
             headers = fetchTestsColumnNames()
             data = tuple(fetchRowsFromTests())
             return render_template("table.html", headers=headers, data=data, url="/tests")
+
+        elif request.form['submit_button'] == "Filters":
+            years = ("2019", "2021")
+            regnames = (row[0] for row in tuple(fetchRegnames()))
+            subjects_dict = subjectDict()
+            subjects = list(subjects_dict.keys())
+            index = 0
+            for subject in subjects:
+                if subjects[index] == 'Українська мова':
+                    subjects[index] = 'Українська_мова'
+
+                if subjects[index] == 'Українська мова та література':
+                    subjects[index] = 'Українська_мова_та_література'
+                index += 1
+
+            subjects = tuple(subjects)
+            functions = ('max', 'min', 'avg')
+
+            return render_template("filters.html", years=years, regnames=regnames, subjects=subjects, functions=functions, url="/filters")
+
+        elif request.form["update_delete"] == "Delete":
+            pass
 
     return render_template("main.html")
 
@@ -117,6 +129,43 @@ def testsTable():
 
     return render_template("table.html", headers=headers, data=data, url=url)
 
+
+@app.route("/filters", methods=["POST", "GET"])
+def filters():
+    years = ("2019", "2021")
+    regnames = (row[0] for row in tuple(fetchRegnames()))
+    subjects_dict = subjectDict()
+    subjects = list(subjects_dict.keys())
+    index = 0
+    for subject in subjects:
+        if subjects[index] == 'Українська мова':
+            subjects[index] = 'Українська_мова'
+
+        if subjects[index] == 'Українська мова та література':
+            subjects[index] = 'Українська_мова_та_література'
+        index += 1
+
+    subjects = tuple(subjects)
+    functions = ('max', 'min', 'avg')
+    grade = 'None'
+    if request.method == 'POST':
+        selected_year = request.form['years']
+        selected_regname = request.form['regnames']
+        selected_subject = request.form['subjects']
+        selected_function = request.form['funcs']
+
+        print(tuple(fetchGradesByYearAndRegion()))
+        print(selected_subject)
+        for key in spaceProblemSolverDict().keys():
+            if selected_subject == key:
+                selected_subject = spaceProblemSolverDict().get(key)
+        print(subjects_dict.get(selected_subject))
+        query_result = list(fetchGrade(selected_year, selected_regname, subjects_dict.get(selected_subject), selected_function))
+        if len(query_result) != 0:
+            grade = query_result[0][2]
+        session.commit()
+
+    return render_template("filters.html", years=years, regnames=regnames, subjects=subjects, functions=functions, grade=grade, url="/filters")
 
 if __name__ == "__main__":
     app.run(debug=True)

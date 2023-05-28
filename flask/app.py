@@ -1,8 +1,9 @@
 from flask import Flask, render_template, url_for, redirect, request
 from SQLA_config import *
+import psycopg2
 app = Flask(__name__)
 
-engine = create_engine("postgresql+psycopg2://postgres:root1@localhost/student01_DB")
+engine = create_engine("postgresql+psycopg2://postgres:root1@db/student01_DB")
 
 
 Session = sessionmaker(bind=engine)
@@ -199,4 +200,5 @@ def filters():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

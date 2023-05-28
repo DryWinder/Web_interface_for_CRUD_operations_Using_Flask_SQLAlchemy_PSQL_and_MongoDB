@@ -1,4 +1,3 @@
-import pandas as pd
 from sqlalchemy import create_engine, MetaData, func, distinct
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.automap import automap_base
@@ -6,7 +5,11 @@ from sqlalchemy import select
 import redis
 
 # 'postgresql+psycopg2://user:password@hostname/database_name'
-engine = create_engine("postgresql+psycopg2://postgres:root1@localhost/student01_DB")
+engine = create_engine("postgresql+psycopg2://postgres:root1@db/student01_DB")
+
+
+r = redis.Redis(host='redis', port=6379)
+
 
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -125,7 +128,7 @@ def fetchRowsFromEO():
 
 
 def fetchEOById(eo_id):
-    query = session.query(EO).filter(EO.eo_id == eo_id)
+    query = session.query(EO).filter(EO.eo_id == eo_id, EO.eo_name != 'NaN')
     return query.first()
 
 
@@ -197,6 +200,13 @@ Different queries
 
 
 def fetchGrade(year, regname, subject, function):
+    cache_key = f"grade:{year}:{regname}:{subject}:{function}"
+
+    # Перевірка, чи дані є в кеші
+    cached_result = r.get(cache_key)
+    if cached_result is not None:
+        # Повернення результату з кешу
+        return cached_result.decode('utf-8')
     if regname != "м.Київ":
         regname += " область"
     query = session.query(
@@ -214,6 +224,8 @@ def fetchGrade(year, regname, subject, function):
     ).group_by(
         Locations.regname, Students.year_of_passing
     )
+
+    r.set(cache_key, query.all())
 
     return query.all()
 

@@ -18,23 +18,31 @@
 <table class="table">
     <tr class="table__header">
         {% for header in headers %}
-        <th class="table__cell">{{header}}</th>
+        <th class="table__cell">{{ header }}</th>
         {% endfor %}
         <th class="table__cell">Actions</th>
     </tr>
     {% for row in data %}
     <tr class="table__row">
-        {% for cell in row %}
+
+        <form action="{{ url }}" method="POST">
+    {% for cell in row %}
         <td class="table__cell">
-            <input type="text" name="cell_value" value="{{ cell }}">
+            {% if loop.index == 1 %}
+                {{ cell }}
+                <input type="hidden" name="{{ headers[loop.index - 1] }}" value="{{ cell }}">
+            {% else %}
+                <input type="text" name="{{ headers[loop.index - 1] }}" value="{{ cell }}">
+            {% endif %}
         </td>
-        {% endfor %}
-        <td>
-            <input type="submit" name="update_delete" value="Update">
-        </td>
-        <td>
-            <input type="submit" name="update_delete" value="Delete">
-        </td>
+    {% endfor %}
+    <td>
+        <input type="submit" name="update_delete" value="Update">
+    </td>
+    <td>
+        <input type="submit" name="update_delete" value="Delete">
+    </td>
+</form>
     </tr>
     {% endfor %}
     <tr class="table__row">
@@ -43,7 +51,7 @@
                 {% for header in headers %}
                 <input type="text" name="{{ header }}" placeholder="{{ header }}" class="form-field">
                 {% endfor %}
-                <input type="submit" value="Add data">
+                <input type="submit" name="Add data" value="Add data">
             </form>
         </td>
     </tr>

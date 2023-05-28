@@ -103,7 +103,6 @@ def eoTable():
             session.add(eo)
 
         session.commit()
-
         return redirect(url)
 
     return render_template("table.html", headers=headers, data=data, url=url)
@@ -188,12 +187,9 @@ def filters():
         selected_subject = request.form['subjects']
         selected_function = request.form['funcs']
 
-        print(tuple(fetchGradesByYearAndRegion()))
-        print(selected_subject)
         for key in spaceProblemSolverDict().keys():
             if selected_subject == key:
                 selected_subject = spaceProblemSolverDict().get(key)
-        print(subjects_dict.get(selected_subject))
         query_result = list(fetchGrade(selected_year, selected_regname, subjects_dict.get(selected_subject), selected_function))
         if len(query_result) != 0:
             grade = query_result[0][2]
@@ -201,17 +197,6 @@ def filters():
 
     return render_template("filters.html", years=years, regnames=regnames, subjects=subjects, functions=functions, grade=grade, url="/filters")
 
-"""
-@app.route("/update_delete", methods=["POST", "GET"])
-def update_delete():
-    if request.method == 'POST':
-        if request.form["update_delete"] == "Update":
-            print("Update")
 
-        if request.form["update_delete"] == "Delete":
-            print("Delete")
-
-        return redirect("/")
-"""
 if __name__ == "__main__":
     app.run(debug=True)

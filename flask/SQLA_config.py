@@ -195,23 +195,6 @@ Different queries
 """
 
 
-def fetchGradesByYearAndRegion():
-    query = session.query(
-        Students.year_of_passing,
-        Locations.regname,
-        func.max(Tests.uml_test_ball100)
-    ).join(
-        Locations, Students.location_id == Locations.location_id
-    ).join(
-        Tests, Students.tests_results_id == Tests.tests_id
-    ).filter(
-        Tests.uml_test_status == 'Зараховано'
-    ).group_by(
-        Locations.regname, Students.year_of_passing
-    )
-    #return conn.execute(query)
-    return query.all()
-
 
 def fetchGrade(year, regname, subject, function):
     if regname != "м.Київ":

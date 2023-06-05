@@ -1,42 +1,62 @@
 from flask import Flask, render_template, url_for, redirect, request
-from SQLA_config import *
+from pymongo import MongoClient
+
+import SQLA_config, mongo_config
+from mongo_config import *
 import psycopg2
 app = Flask(__name__)
 
+#engine = create_engine("postgresql+psycopg2://postgres:root1@localhost/student01_DB")
 engine = create_engine("postgresql+psycopg2://postgres:root1@db/student01_DB")
 
+#mongo_client = MongoClient('mongodb://localhost:27017/')
+mongo_client = MongoClient('mongodb://mongodb:27017/')
 
+db = mongo_client.student01_DB
+
+
+#docker-compose build --no-cache && docker-compose up -d --force-recreate
 Session = sessionmaker(bind=engine)
 session = Session()
+
+Config = SQLA_config.Config
 
 
 @app.route("/", methods=['POST', 'GET'])
 def showTables():
+    global Config
+    config = Config()
     if request.method == 'POST':
+        if request.form["submit_button"] == "Use PostgreSQL":
+            Config = SQLA_config.Config
+        if request.form["submit_button"] == "Use MongoDB":
+            Config = mongo_config.Config
+
+        print(Config)
         if request.form["submit_button"] == "Show locations":
             headers = ("location_id", "regname", "areaname", "tername", "tertypename")
-            data = tuple(fetchRowsFromLocations())
+            data = tuple(config.fetchRowsFromLocations())
             return render_template("table.html", headers=headers, data=data, url="/locations")
 
         elif request.form['submit_button'] == "Show students":
             headers = ("student_id", "year_of_passing", "outid", "birth", "sextypename", "location_id", "eo_id", "tests_results_id")
-            data = tuple(fetchRowsFromStudents())
+            data = tuple(config.fetchRowsFromStudents())
             return render_template("table.html", headers=headers, data=data, url="/students")
 
         elif request.form['submit_button'] == "Show EO":
             headers = ("eo_id", "eo_name", "eo_type", "location_id")
-            data = tuple(fetchRowsFromEO())
+            data = tuple(config.fetchRowsFromEO())
             return render_template("table.html", headers=headers, data=data, url="/eo")
 
         elif request.form['submit_button'] == "Show Tests":
-            headers = fetchTestsColumnNames()
-            data = tuple(fetchRowsFromTests())
+            headers = config.fetchTestsColumnNames()
+            data = tuple(config.fetchRowsFromTests())
             return render_template("table.html", headers=headers, data=data, url="/tests")
 
         elif request.form['submit_button'] == "Filters":
             years = ("2019", "2021")
-            regnames = (row[0] for row in tuple(fetchRegnames()))
-            subjects_dict = subjectDict()
+            regnames = config.fetchRegnames()
+            subjects_dict = config.subjectDict()
             subjects = list(subjects_dict.keys())
             index = 0
             for subject in subjects:
@@ -57,9 +77,11 @@ def showTables():
 
 @app.route("/locations", methods=['POST', 'GET'])
 def locationsTable():
+    global Config
+    config = Config()
     url="/locations"
     headers = ("location_id", "regname", "areaname", "tername", "tertypename")
-    data = tuple(fetchRowsFromLocations())
+    data = tuple(config.fetchRowsFromLocations())
     if request.method == 'POST':
         location_id = request.form['location_id']
         regname = request.form['regname']
@@ -68,14 +90,14 @@ def locationsTable():
         tertypename = request.form['tertypename']
         if 'update_delete' in request.form:
             if request.form['update_delete'] == "Update":
-                updateLocation(location_id, regname, areaname, tername, tertypename)
+                config.updateLocation(location_id, regname, areaname, tername, tertypename)
                 print(request.form)
             if request.form['update_delete'] == "Delete":
-                deleteLocation(location_id)
+                config.deleteLocation(location_id)
 
         else:
-            location = Locations(regname=regname, areaname=areaname, tername=tername, tertypename=tertypename)
-            session.add(location)
+            config.createLocation(location_id, regname, areaname, tername, tertypename)
+
         session.commit()
         return redirect(url)
 
@@ -84,9 +106,12 @@ def locationsTable():
 
 @app.route("/eo", methods=['POST', 'GET'])
 def eoTable():
+    global Config
+    config = Config()
+
     url="/eo"
     headers = ("eo_id", "eo_name", "eo_type", "location_id")
-    data = tuple(fetchRowsFromEO())
+    data = tuple(config.fetchRowsFromEO())
     if request.method == 'POST':
         eo_id = request.form['eo_id']
         eo_name = request.form['eo_name']
@@ -94,14 +119,13 @@ def eoTable():
         location_id = request.form['location_id']
         if 'update_delete' in request.form:
             if request.form['update_delete'] == "Update":
-                updateEO(eo_id, eo_name, eo_type, location_id)
+                config.updateEO(eo_id, eo_name, eo_type, location_id)
 
             if request.form['update_delete'] == "Delete":
-                deleteEO(eo_name, eo_type, location_id)
+                config.deleteEO(eo_id)
 
         else:
-            eo = EO(eo_name=eo_name, eo_type=eo_type, location_id=location_id)
-            session.add(eo)
+            config.createEO(eo_id, eo_name, eo_type, location_id)
 
         session.commit()
         return redirect(url)
@@ -111,9 +135,12 @@ def eoTable():
 
 @app.route("/students", methods=['POST', 'GET'])
 def studentsTable():
+    global Config
+    config = Config()
+
     url = "/students"
     headers = ("student_id", "year_of_passing", "outid", "birth", "sextypename", "location_id", "eo_id", "tests_results_id")
-    data = tuple(fetchRowsFromStudents())
+    data = tuple(config.fetchRowsFromStudents())
     if request.method == 'POST':
         student_id = request.form['student_id']
         year_of_passing = request.form['year_of_passing']
@@ -125,15 +152,14 @@ def studentsTable():
         tests_results_id = request.form['tests_results_id']
         if 'update_delete' in request.form:
             if request.form['update_delete'] == "Update":
-                updateStudent(student_id, year_of_passing, outid, birth, sextypename, location_id, eo_id, tests_results_id)
+                config.updateStudent(student_id, year_of_passing, outid, birth, sextypename, location_id, eo_id, tests_results_id)
 
             if request.form['update_delete'] == "Delete":
-                deleteStudent(outid)
+                config.deleteStudent(outid)
                 session.commit()
 
         else:
-            student = Students(year_of_passing=year_of_passing, outid=outid, birth=birth, sextypename=sextypename, location_id=location_id, eo_id=eo_id, tests_results_id=tests_results_id)
-            session.add(student)
+            config.createStudent(student_id, year_of_passing, outid, birth, sextypename, location_id, eo_id, tests_results_id)
 
         session.commit()
         return redirect(url)
@@ -143,21 +169,24 @@ def studentsTable():
 
 @app.route("/tests", methods=['POST', 'GET'])
 def testsTable():
+    global Config
+    config = Config()
+
     url="/tests"
-    headers = tuple(fetchTestsColumnNames())
-    data = tuple(fetchRowsFromTests())
+    headers = tuple(config.fetchTestsColumnNames())
+    data = tuple(config.fetchRowsFromTests())
     if request.method == 'POST':
         tests_data = {column_name: request.form.get(column_name) if request.form.get(column_name) != '' else None for column_name in headers}
         test = Tests(**tests_data)
         if 'update_delete' in request.form:
             if request.form['update_delete'] == "Update":
-                updateTest(test.tests_id, tests_data)
+                config.updateTest(test.tests_id, tests_data)
 
             if request.form['update_delete'] == "Delete":
-                deleteTest(test.student_id)
+                config.deleteTest(test.student_id)
 
         else:
-            session.add(test)
+            config.createTest(tests_data)
         session.commit()
         return redirect(url)
 
@@ -166,9 +195,12 @@ def testsTable():
 
 @app.route("/filters", methods=["POST", "GET"])
 def filters():
+    global Config
+    config = Config()
+
     years = ("2019", "2021")
-    regnames = (row[0] for row in tuple(fetchRegnames()))
-    subjects_dict = subjectDict()
+    regnames = config.fetchRegnames()
+    subjects_dict = config.subjectDict()
     subjects = list(subjects_dict.keys())
     index = 0
     for subject in subjects:
@@ -181,19 +213,19 @@ def filters():
 
     subjects = tuple(subjects)
     functions = ('max', 'min', 'avg')
-    grade = 'None'
     if request.method == 'POST':
         selected_year = request.form['years']
         selected_regname = request.form['regnames']
         selected_subject = request.form['subjects']
         selected_function = request.form['funcs']
 
-        for key in spaceProblemSolverDict().keys():
+        for key in config.spaceProblemSolverDict().keys():
             if selected_subject == key:
-                selected_subject = spaceProblemSolverDict().get(key)
-        query_result = list(fetchGrade(selected_year, selected_regname, subjects_dict.get(selected_subject), selected_function))
-        if len(query_result) != 0:
-            grade = query_result[0][2]
+                selected_subject = config.spaceProblemSolverDict().get(key)
+        query_result = config.fetchGrade(selected_year, selected_regname, subjects_dict.get(selected_subject), selected_function)
+        grade = query_result
+        if grade == 0:
+            grade = 'None'
         session.commit()
 
     return render_template("filters.html", years=years, regnames=regnames, subjects=subjects, functions=functions, grade=grade, url="/filters")

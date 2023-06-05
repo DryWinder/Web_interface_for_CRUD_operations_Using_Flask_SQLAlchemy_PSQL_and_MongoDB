@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  app:
+    build: ./app/
+    depends_on:
+      - db
+    environment:
+      PYTHONUNBUFFERED: 1
+    networks:
+      - test
+
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root1
+      - POSTGRES_DB=student01_DB
+      - POSTGRES_HOST=db
+    ports:
+      - '5432:5432'
+    networks:
+      - test
+
+
+  flyway:
+    image: flyway/flyway:8.5.8-alpine
+    command:
+      -url=jdbc:postgresql://db:5432/student01_DB -user=postgres -password=root1 migrate
+    volumes:
+      - .:/flyway/sql
+      - ./flyway/flyway.conf:/flyway/conf/flyway.conf
+    depends_on:
+      - db
+    networks:
+      - test
+    environment:
+      - baselineOnMigrate=true
+      - table=flyway_schema_history
+
+
+  flask:
+    build: ./flask/
+    depends_on:
+      - db
+    environment:
+      PYTHONUNBUFFERED: 1
+    ports:
+      - '5000:5000'
+    networks:
+      - test
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    networks:
+      - test
+
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=student01_DB
+      - MONGO_INITDB_COLLECTION_LOCATIONS=locations
+      - MONGO_INITDB_COLLECTION_EO=eo
+      - MONGO_INITDB_COLLECTION_STUDENTS=students
+      - MONGO_INITDB_COLLECTION_TESTS=tests
+    networks:
+      - test
+
+networks:
+  test:

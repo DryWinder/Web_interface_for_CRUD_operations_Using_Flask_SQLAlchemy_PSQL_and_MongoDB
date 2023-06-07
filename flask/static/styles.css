@@ -1,11 +1,21 @@
+body {
+    background-color: black;
+    font-family: "Lucida Console", "Courier New", monospace;
+}
+
 .table{
     border-spacing: 0;
-    margin: 1rem;
-    background-color: #f5f5f5;
+    margin: auto;
+    background-color: transparent;
+    border-radius: 15px;
+    color: white;
+    border: 2px solid white;
+    padding: 15px;
 }
 
 .table__row:nth-child(even) {
-    background-color: #e5e5e5 ;
+    background-color: transparent;
+    color: white;
 }
 
 .table__header{
@@ -22,6 +32,89 @@ form{
 }
 
 .form-field {
-        width: 100%;
-        box-sizing: border-box;
-    }
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tabl-btn {
+    background-color: transparent;
+    border-radius: 15px;
+    color: white;
+    border: 2px solid white;
+    padding: 10px;
+}
+
+.tbl-inp{
+    background-color: transparent;
+    border-radius: 15px;
+    color: #9336B4;
+    border: 2px solid #9336B4;
+    padding: 10px;
+}
+
+.tabl-btn:hover {
+    background-color: #9336B4;
+    cursor: pointer;
+}
+
+.main-page-inp {
+    background-color: transparent;
+    border-radius: 15px;
+    color: white;
+    padding: 20px;
+    border: 2px solid white;
+    margin: auto;
+    margin-bottom: 30px;
+    font-size: 20px;
+    min-width: 300px;
+}
+.main-form {
+    max-width: 100%;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-form {
+    padding: 20px;
+    display: flex;
+}
+
+.table-form .main-page-inp {
+    background-color: transparent;
+    border-radius: 15px;
+    color: white;
+    padding: 10px;
+    border: 2px solid white;
+    margin: auto;
+    margin-bottom: 15px;
+    font-size: 15px;
+    min-width: 150px;
+}
+
+.stl-select {
+    color: white;
+    background-color: transparent;
+ 
+    padding: 10px;
+    flex-direction: column;
+}
+
+.stl-select  optgroup, select, input {
+    color: white;
+    padding: 5px;
+    margin: 10px;
+    background-color: black;
+}
+
+.stl-select  input {
+    background-color: transparent;
+    border-radius: 15px;
+    color: white;
+    border: 2px solid white;
+}
+
+.main-page-inp:hover {
+    background-color: #9336B4;
+    cursor: pointer;
+}

@@ -7,15 +7,15 @@
     <title>Title</title>
 </head>
 <body>
-    <form method="POST" action="/">
-    <input type="submit" name="submit_button" value="Show locations">
-    <input type="submit" name="submit_button" value="Show students">
-    <input type="submit" name="submit_button" value="Show EO">
-    <input type="submit" name="submit_button" value="Show Tests">
-    <input type="submit" name="submit_button" value="Filters">
+    <form method="POST" action="/" class="table-form">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Show locations">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Show students">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Show EO">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Show Tests">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Filters">
 </form>
 
-<table class="table">
+<table class="table stl-select">
     <tr class="table__header">
         {% for header in headers %}
         <th class="table__cell">{{ header }}</th>
@@ -37,10 +37,10 @@
         </td>
     {% endfor %}
     <td>
-        <input type="submit" name="update_delete" value="Update">
+        <input class="tabl-btn" type="submit" name="update_delete" value="Update">
     </td>
     <td>
-        <input type="submit" name="update_delete" value="Delete">
+        <input class="tabl-btn" type="submit" name="update_delete" value="Delete">
     </td>
 </form>
     </tr>
@@ -51,7 +51,7 @@
                 {% for header in headers %}
                 <input type="text" name="{{ header }}" placeholder="{{ header }}" class="form-field">
                 {% endfor %}
-                <input type="submit" name="Add data" value="Add data">
+                <input class="tabl-btn" type="submit" name="Add data" value="Add data">
             </form>
         </td>
     </tr>

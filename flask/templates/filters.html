@@ -8,14 +8,14 @@
 </head>
 <body>
 <form method="POST" action="/">
-    <input type="submit" name="submit_button" value="Show locations">
-    <input type="submit" name="submit_button" value="Show students">
-    <input type="submit" name="submit_button" value="Show EO">
-    <input type="submit" name="submit_button" value="Show Tests">
-    <input type="submit" name="submit_button" value="Filters">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Show locations">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Show students">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Show EO">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Show Tests">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Filters">
 </form>
 <p></p>
-<form method="POST" action="{{ url }}">
+<form method="POST" class="stl-select" action="{{ url }}">
     <label for="years">Оберіть рік проведення ЗНО/НМТ: </label>
     <select name="years" id="year">
         <optgroup label="Рік">
@@ -52,7 +52,7 @@
         </optgroup>
     </select>
 
-    <input type="submit" name="submit_button" value="Застосувати">
+    <input class="main-page-inp" type="submit" name="submit_button" value="Застосувати">
 </form>
 
 <table class="table">
